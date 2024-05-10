@@ -15,6 +15,9 @@ This project demonstrates the deployment and scaling of a simple web application
 
 ```
 .
+├── .github
+│   └── workflows
+│       └── ci.yml
 ├── app
 │   ├── Dockerfile
 │   ├── api.py
