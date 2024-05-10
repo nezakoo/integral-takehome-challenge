@@ -1,3 +1,4 @@
+[![Linter & Unittests & Deploy](https://github.com/nezakoo/integral-takehome-challenge/actions/workflows/ci.yml/badge.svg)](https://github.com/nezakoo/integral-takehome-challenge/actions/workflows/ci.yml)
 # Platform Engineering Takehome Challenge: Q2 2024
 
 ## Overview
