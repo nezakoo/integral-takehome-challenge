@@ -71,16 +71,6 @@ def delay_response(seconds):
     time.sleep(seconds)
     return jsonify(delay=seconds), 200
 
-
-# Metric endpoint for KEDA
-def update_request_metrics():
-    now = time()
-    request_times.append(now)
-    # Remove requests older than 1 second from the deque
-    while request_times and request_times[0] < now - 1:
-        request_times.popleft()
-    return len(request_times)
-
 @app.route('/metrics', methods=['GET'])
 def metrics():
     # Update the requests_per_second metric
