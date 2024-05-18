@@ -24,8 +24,8 @@ spec:
       labels:
         severity: warning
       annotations:
-        summary: High request rate in {{ '{{' }} $labels.namespace {{ '}}' }}
-        description: "Request rate is high, more than 100 req/s (current value: {{ '{{' }} $value {{ '}}' }} req/s)"
+        summary: "High request rate in {{ \$labels.namespace }}"
+        description: "Request rate is high, more than 100 req/s (current value: {{ \$value }} req/s)"
 EOF
 }
 
@@ -51,8 +51,8 @@ data:
       email_configs:
       - to: "your-email@example.com"
         send_resolved: true
-        subject: "Alert - {{ '{{' }} .Status {{ '}}' }}"
-        html: "<h2>{{ '{{' }} .Status | toTitle {{ '}}' }}</h2><p>{{ '{{' }} .CommonAnnotations.summary {{ '}}' }}</p>"
+        subject: "Alert - {{ .Status }}"
+        html: "<h2>{{ .Status | toTitle }}</h2><p>{{ .CommonAnnotations.summary }}</p>"
 '
 }
 

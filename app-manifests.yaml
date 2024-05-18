@@ -49,8 +49,8 @@ spec:
             memory: "64Mi"
             cpu: "10m"
           limits:
-            memory: "128Mi"
-            cpu: "100m"
+            memory: "256Mi"
+            cpu: "300m"
 ---
 apiVersion: v1
 kind: Service
@@ -85,11 +85,11 @@ spec:
       target:
         type: Utilization
         averageUtilization: 50
-  # custom metric
   - type: Pods
     pods:
       metric:
         name: requests_per_second
       target:
         type: AverageValue
-        averageValue: 3000m # 3000m = 3 request per second
+        averageValue: 3000m
+

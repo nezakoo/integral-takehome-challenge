@@ -5,24 +5,29 @@ set -u
 set -o pipefail
 set -x
 
+ALERTING=false
+
 # Function to patch Prometheus Server ConfigMap
 patch_prometheus_server() {
     echo "Patching Prometheus Server ConfigMap with new scrape job..."
-    kubectl patch cm prometheus-server -n monitoring --type=json -p='[
-        {
-            "op": "add",
-            "path": "/data/prometheus.yml/scrape_configs/-",
-            "value": {
-                "job_name": "integral-app",
-                "scrape_interval": "10s",
-                "static_configs": [
-                    {
-                        "targets": ["integral-app-service.integral-app.svc.cluster.local:5000"]
-                    }
-                ]
-            }
-        }
-    ]'
+    kubectl patch configmap prometheus-server -n monitoring --type=merge -p='
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 10s
+      evaluation_interval: 15s
+    scrape_configs:
+      - job_name: 'integral-app'
+        static_configs:
+          - targets: ['integral-app-service.integral-app.svc.cluster.local:5000']
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: instance
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+'
 }
 
 # Function to patch Prometheus Adapter ConfigMap
@@ -32,7 +37,7 @@ patch_prometheus_adapter() {
 data:
   config.yaml: |
     rules:
-      - seriesQuery: "requests_per_second{job=\"integral-app\"}"
+      - seriesQuery: 'requests_per_second{job="integral-app"}'
         resources:
           overrides:
             namespace: {resource: "namespace"}
@@ -40,8 +45,7 @@ data:
         name:
           matches: "^requests_per_second$"
           as: "requests_per_second"
-        metricsQuery: "sum(rate(requests_per_second{job=\"integral-app\"}[1m])) by (namespace, pod)"
-    '
+        metricsQuery: "sum(rate(requests_per_second{job="integral-app"}[1m])) by (namespace, pod)"
 }
 
 # Function to patch Alertmanager ConfigMap with email configuration
@@ -74,8 +78,11 @@ data:
 # Function to restart Prometheus and Alertmanager deployments to apply changes
 restart_services() {
     echo "Restarting Prometheus and Alertmanager to apply changes..."
-    kubectl rollout restart deployment prometheus-kube-prometheus-stack-prometheus -n monitoring
-    kubectl rollout restart deployment prometheus-kube-prometheus-stack-alertmanager -n monitoring
+    kubectl rollout restart deployment prometheus-server -n monitoring
+    kubectl rollout restart deployment prometheus-adapter -n monitoring
+    if $ALERTING; then
+        kubectl rollout restart deployment prometheus-alertmanager -n monitoring
+    fi
 }
 
 # Main script execution
@@ -83,9 +90,11 @@ echo "Starting the Prometheus configuration update process..."
 
 patch_prometheus_server
 patch_prometheus_adapter
-patch_alertmanager_config
+if $ALERTING; then
+    patch_alertmanager_config
+fi
 
 # Uncomment to Restart Prometheus and Alertmanager to apply changes
-# restart_services
+restart_services
 
 echo "Prometheus configuration update process completed."

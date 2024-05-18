@@ -57,8 +57,8 @@ kubectl apply -f app-manifests.yaml
 If you are setting up monitoring with Prometheus, execute the scripts in the `prometheus` directory to configure alerting rules and scrape configurations:
 
 ```bash
-./prometheus/deploy_alert_manager_rules.sh
-./prometheus/enable_app_prometheus.sh
+../prometheus/deploy_alert_manager_rules.sh
+../prometheus/enable_app_prometheus.sh
 ```
 
 ### 4. Performing Load Tests
@@ -73,7 +73,7 @@ docker build -t load-tester .
 Run the load testing tool using:
 
 ```bash
-docker run --rm load-tester /usr/local/bin/hey -n 1000 -c 10 http://integral-app-service.integral-app.svc.cluster.local:5000/
+docker run --rm load-tester -n 1000 -c 10 http://integral-app-service.integral-app.svc.cluster.local:5000/
 ```
 
 ## Auto-Scaling Verification
