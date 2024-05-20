@@ -71,6 +71,7 @@ docker build -t load-tester .
 ```
 
 Run the load testing tool using:
+> Note: Replace the URL with the service URL of the deployed application.
 
 ```bash
 docker run --rm load-tester -n 1000 -c 10 http://integral-app-service.integral-app.svc.cluster.local:5000/

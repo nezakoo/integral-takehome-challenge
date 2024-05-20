@@ -49,7 +49,7 @@ spec:
             memory: "64Mi"
             cpu: "10m"
           limits:
-            memory: "256Mi"
+            memory: "512Mi"
             cpu: "300m"
 ---
 apiVersion: v1
@@ -92,4 +92,3 @@ spec:
       target:
         type: AverageValue
         averageValue: 3000m
-
